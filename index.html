@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>User Manager</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    table, th, td { border: 1px solid black; border-collapse: collapse; padding: 8px; }
+    table { margin-top: 20px; width: 100%; }
+    input { margin-bottom: 10px; padding: 5px; width: 200px; }
+    button { padding: 5px 10px; }
+  </style>
+</head>
+<body>
+
+  <h1>Create a New User</h1>
+  <form id="userForm">
+    <input type="text" name="name" placeholder="Name" required><br>
+    <input type="email" name="email" placeholder="Email" required><br>
+    <input type="password" name="password" placeholder="Password" required><br>
+    <button type="submit">Create User</button>
+  </form>
+
+  <h2>All Users</h2>
+  <table id="userTable">
+    <thead>
+      <tr><th>Name</th><th>Email</th></tr>
+    </thead>
+    <tbody>
+      <!-- users will be loaded here -->
+    </tbody>
+  </table>
+
+  <script>
+    const form = document.getElementById('userForm');
+    const tableBody = document.querySelector('#userTable tbody');
+
+    async function fetchUsers() {
+      const res = await fetch('http://localhost:3000/api/users');
+      const users = await res.json();
+      tableBody.innerHTML = '';
+      users.forEach(user => {
+        const row = `<tr><td>${user.name}</td><td>${user.email}</td></tr>`;
+        tableBody.innerHTML += row;
+      });
+    }
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const formData = new FormData(form);
+      const data = Object.fromEntries(formData.entries());
+
+      await fetch('http://localhost:3000/api/users', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+
+      form.reset();
+      fetchUsers();
+    });
+
+    // Load users on page load
+    fetchUsers();
+  </script>
+
+</body>
+</html>
